@@ -1,0 +1,110 @@
+
+<!DOCTYPE html> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <title>Acceleration + Gyro Demo</title> 
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style> 
+      #no {
+        display: none;  
+      }
+
+      body {
+        font-family:Helvetica, Arial, Verdana, sans-serif;
+      }   
+    </style> 
+  </head> 
+
+  <body>
+    <div id="yes"> 
+
+      <h1>Accelerometer</h1>
+      
+      <div id="xlabel"></div>
+      <div id="ylabel"></div>
+      <div id="zlabel"></div>
+      <div id="ilabel"></div>         
+      <div id="arAlphaLabel"></div>                   
+      <div id="arBetaLabel"></div>                    
+      <div id="arGammaLabel"></div>  
+
+      <h1>Gyro</h1>
+      <div id="alphalabel"></div>     
+      <div id="betalabel"></div>
+      <div id="gammalabel"></div>                                     
+    </div>
+    <div id="no">
+      Your browser does not support Device Orientation and Motion API. Try this sample with iPhone, iPod or iPad with iOS 4.2+.    
+    </div>
+    
+    <script> 
+      var delay = 10;
+
+      // Acceleration
+      var ax = 0;
+      var ay = 0;
+      var az = 0;
+      var ai = 0;
+      var arAlpha = 0;
+      var arBeta = 0;
+      var arGamma = 0;
+
+      // gyro
+      var alpha = 0;
+      var beta = 0;
+      var gamma = 0;
+      
+      
+      if (window.DeviceMotionEvent==undefined) {
+        document.getElementById("no").style.display="block";
+        document.getElementById("yes").style.display="none";
+      } 
+      else {
+        window.ondevicemotion = function(event) {
+          ax = Math.round(Math.abs(event.accelerationIncludingGravity.x));
+          ay = Math.round(Math.abs(event.accelerationIncludingGravity.y));
+          az = Math.round(Math.abs(event.accelerationIncludingGravity.z));    
+          ai = Math.round(event.interval * 100) / 100;
+          rR = event.rotationRate;
+          if (rR != null) {
+            arAlpha = Math.round(rR.alpha);
+            arBeta = Math.round(rR.beta);
+            arGamma = Math.round(rR.gamma);
+          }      
+        }
+                
+        window.ondeviceorientation = function(event) {
+          alpha = Math.round(event.alpha);
+          beta = Math.round(event.beta);
+          gamma = Math.round(event.gamma);
+        }       
+        
+
+        setInterval(function() {
+          document.getElementById("xlabel").innerHTML = "X: " + ax;
+          document.getElementById("ylabel").innerHTML = "Y: " + ay;
+          document.getElementById("zlabel").innerHTML = "Z: " + az;                   
+          document.getElementById("ilabel").innerHTML = "I: " + ai;                   
+          document.getElementById("arAlphaLabel").innerHTML = "arA: " + arAlpha;                              
+          document.getElementById("arBetaLabel").innerHTML = "arB: " + arBeta;
+          document.getElementById("arGammaLabel").innerHTML = "arG: " + arGamma;                                                  
+          document.getElementById("alphalabel").innerHTML = "Alpha: " + alpha;
+          document.getElementById("betalabel").innerHTML = "Beta: " + beta;
+          document.getElementById("gammalabel").innerHTML = "Gamma: " + gamma;
+
+        }, delay);
+      } 
+
+      window.onload = function(){
+
+
+        var socket = io('http://localhost:8080'); 
+      }
+      </script> 
+    </body> 
+</html> 

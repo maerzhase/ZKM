@@ -1,0 +1,42 @@
+
+<!DOCTYPE html> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <title>Acceleration + Gyro Demo</title> 
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style> 
+      #no {
+        display: none;  
+      }
+
+      body {
+        font-family:Helvetica, Arial, Verdana, sans-serif;
+      }   
+    </style> 
+  </head> 
+
+  <body>
+    <div id="stats">
+    asdasdasd
+    </div>
+    <script> 
+
+
+      window.onload = function(){
+
+
+        var socket = io('http://localhost:8080'); 
+
+        socket.on('stats', function (data) {
+          var statsNode = document.getElementById('stats');
+          statsNode.innerHTML = data;
+        });
+      }
+      </script> 
+    </body> 
+</html> 

@@ -4,7 +4,7 @@ var restify = require('restify'),
     server = restify.createServer(),
     io = socketio.listen(server.server);
 
-//var uuid = require('node-uuid');
+var uuid = require('node-uuid');
 
 
 // for retrieving full responses
@@ -23,20 +23,28 @@ server.use(restify.CORS({
 // });
 
 // RESTify routes
-server.get('/', restify.serveStatic({
-  directory: './public/',
+server.get('/live', restify.serveStatic({
+  directory: '.',
   default: 'index.html'
 }));
+
+server.get('/stats', restify.serveStatic({
+  directory: '.',
+  default: 'stats.html'
+}));
+
+var phoneData = {};
 
 //server.post('/startmatch',restify.bodyParser(), restify.queryParser(), startMatch);
 
 
 io.on('connection', function (socket) {
     console.log('websocket user connected');
-
+    const userid = uuid.v1();
+    phoneData[userid] = {};
 
     //do stuff
-    //socket.emit('connection.response', {userId:socket.handshake.userId,socketId:socket.id});
+    socket.emit('stats', phoneData);
 
     //Then remove socket.id from cache
     socket.on('disconnect', function (payload) {
