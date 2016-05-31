@@ -1,0 +1,35 @@
+{
+  "name": "t3-backend",
+  "version": "0.0.1",
+  "private": true,
+  "description": "",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node_modules/nodemon/bin/nodemon.js --watch src src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StudioNAND/T3-Backend.git"
+  },
+  "author": "Studio NAND & Markus Kerschkewicz",
+  "license": "© Studio NAND, 2015",
+  "bugs": {
+    "url": "https://github.com/StudioNAND/T3-Backend/issues"
+  },
+  "homepage": "https://github.com/StudioNAND/T3-Backend#readme",
+  "devDependencies": {
+    "nodemon": "^1.9.1"
+  },
+  "dependencies": {
+    "fs": "0.0.2",
+    "gm": "^1.21.1",
+    "lodash": "^4.6.1",
+    "mkdirp": "^0.5.1",
+    "node-uuid": "^1.4.7",
+    "node-zip": "^1.1.1",
+    "redis": "^2.5.1",
+    "restify": "^4.0.4",
+    "socket.io": "^1.4.5"
+  }
+}
