@@ -27,14 +27,14 @@
     <script> 
 
 
-      window.onload = function(){
+      window.onload = function() {
 
-
-        var socket = io('http://localhost:8080'); 
+        var socket = io(window.location.origin); 
+        var ret = socket.emit("register_stats", {});
 
         socket.on('stats', function (data) {
           var statsNode = document.getElementById('stats');
-          statsNode.innerHTML = data;
+          statsNode.innerHTML = JSON.stringify(data);
         });
       }
       </script> 

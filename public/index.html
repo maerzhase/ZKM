@@ -102,8 +102,8 @@
 
       window.onload = function(){
 
-
-        var socket = io('http://localhost:8080'); 
+        var socket = io(window.location.origin); 
+        socket.emit("register_live", {});
       }
       </script> 
     </body> 

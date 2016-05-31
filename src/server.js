@@ -16,21 +16,16 @@ server.use(restify.CORS({
     headers: ['Authorization']         // sets expose-headers
 }));
 
-// handle OPTIONS pre-flights
-// server.opts(/\.*/, function (req, res, next) {
-//   res.send(200);
-//   next();
-// });
 
 // RESTify routes
 server.get('/live', restify.serveStatic({
-  directory: '.',
-  default: 'index.html'
+  directory: './public/',
+  file: 'index.html'
 }));
 
 server.get('/stats', restify.serveStatic({
-  directory: '.',
-  default: 'stats.html'
+  directory: './public/',
+  file: 'stats.html'
 }));
 
 var phoneData = {};
@@ -39,22 +34,28 @@ var phoneData = {};
 
 
 io.on('connection', function (socket) {
-    console.log('websocket user connected');
+  
+  socket.on('register_live', function (data) {
+    
+    console.log("live reg");
+    
     const userid = uuid.v1();
     phoneData[userid] = {};
+    
+    io.emit('stats', phoneData);
+    
 
-    //do stuff
-    socket.emit('stats', phoneData);
-
-    //Then remove socket.id from cache
     socket.on('disconnect', function (payload) {
-        //remove user.id from cache
-        // redis.del(socket.handshake.userId, function (err, res) {
-        //      console.log('user with socketId: %s & userId: %s disconnected', socket.id, socket.handshake.userId);
-        // });
+      delete phoneData[userid];
+      io.emit('stats', phoneData);
     });
-});
 
+  });
+
+  socket.on('register_stats', function (data) {
+    console.log("stats reg");
+  });
+});
 
 function registerUser(req,res,next){
   var playerData = JSON.parse(req.body.data);
