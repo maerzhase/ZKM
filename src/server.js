@@ -28,6 +28,11 @@ server.get('/stats', restify.serveStatic({
   file: 'stats.html'
 }));
 
+server.get('/render.js', restify.serveStatic({
+  directory: './public/',
+  file: 'render.js'
+}));
+
 var phoneData = {};
 
 //server.post('/startmatch',restify.bodyParser(), restify.queryParser(), startMatch);
@@ -37,23 +42,25 @@ io.on('connection', function (socket) {
   
   socket.on('register_live', function (data) {
     
-    console.log("live reg");
-    
     const userid = uuid.v1();
     phoneData[userid] = {};
     
     io.emit('stats', phoneData);
     
+    socket.on('update', function (data) {
+      phoneData[userid] = data;
+      io.emit('stats', phoneData);
+    });
 
     socket.on('disconnect', function (payload) {
       delete phoneData[userid];
       io.emit('stats', phoneData);
     });
-
   });
 
   socket.on('register_stats', function (data) {
     console.log("stats reg");
+    io.emit('stats', phoneData);
   });
 });
 
@@ -70,7 +77,6 @@ function registerUser(req,res,next){
   }
   registeredPlayers.push(playerData);
   io.emit('players.update',registeredPlayers);
-
 
   fileUtils.saveFile("registered_players","data/",".json",JSON.stringify(registeredPlayers), function(err){
     console.log(err);

@@ -3,6 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"> 
   <head> 
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.min.js"></script>
+    <script src="render.js"></script>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <title>Acceleration + Gyro Demo</title> 
@@ -33,9 +35,13 @@
         var ret = socket.emit("register_stats", {});
 
         socket.on('stats', function (data) {
+          _data = data;
           var statsNode = document.getElementById('stats');
-          statsNode.innerHTML = JSON.stringify(data);
+          //statsNode.innerHTML = JSON.stringify(data);
         });
+
+        init();
+        render();
       }
       </script> 
     </body> 

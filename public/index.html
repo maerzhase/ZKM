@@ -43,22 +43,38 @@
     </div>
     
     <script> 
-      var delay = 10;
+      var delay = 1;
+      var socket;
 
       // Acceleration
-      var ax = 0;
-      var ay = 0;
-      var az = 0;
-      var ai = 0;
-      var arAlpha = 0;
-      var arBeta = 0;
-      var arGamma = 0;
-
-      // gyro
-      var alpha = 0;
-      var beta = 0;
-      var gamma = 0;
+      var data = {
+        ax:0,
+        ay:0,
+        az:0,
+        ai:0,
+        arAlpha:0,
+        arBeta:0,
+        arGamma:0,
+        alpha:0,
+        beta:0,
+        gamma:0,
+        velx:0, 
+        vely:0,
+        velz:0,
+        accx:0,
+        accy:0,
+        accz:0,
+        posx:0, 
+        posy:0,
+        posz:0,
+        posx2:0, 
+        posy2:0,
+        posz2:0
+      }
       
+      var gx = 0;
+      var gy = 0;
+      var gz = 0;
       
       if (window.DeviceMotionEvent==undefined) {
         document.getElementById("no").style.display="block";
@@ -66,44 +82,83 @@
       } 
       else {
         window.ondevicemotion = function(event) {
-          ax = Math.round(Math.abs(event.accelerationIncludingGravity.x));
-          ay = Math.round(Math.abs(event.accelerationIncludingGravity.y));
-          az = Math.round(Math.abs(event.accelerationIncludingGravity.z));    
-          ai = Math.round(event.interval * 100) / 100;
-          rR = event.rotationRate;
-          if (rR != null) {
-            arAlpha = Math.round(rR.alpha);
-            arBeta = Math.round(rR.beta);
-            arGamma = Math.round(rR.gamma);
-          }      
+          data.ax = event.accelerationIncludingGravity.x;
+          data.ay = event.accelerationIncludingGravity.y;
+          data.az = event.accelerationIncludingGravity.z;    
+          data.ai = Math.round(event.interval * 100) / 100;
+
+
+          data.rR = event.rotationRate;
+          if (data.rR != null) {
+            data.arAlpha = data.rR.alpha;
+            data.arBeta  = data.rR.beta;
+            data.arGamma = data.rR.gamma;
+          }
+/*
+          data.velx += data.arAlpha;
+          data.vely += data.arBeta;
+          data.velz += data.arGamma;
+*/
+          var damp = 0.9;
+          var alpha = 0.9;
+          gx = alpha*gx + (1-alpha)*event.acceleration.x;
+          gy = alpha*gy + (1-alpha)*event.acceleration.y;
+          gz = alpha*gz + (1-alpha)*event.acceleration.z;
+
+          data.accx = event.acceleration.x - gx;
+          data.accy = event.acceleration.y - gy;
+          data.accz = event.acceleration.z - gz;
+
+          data.velx += data.accx;
+          data.vely += data.accy;
+          data.velz += data.accz;
+
+          data.posx += data.velx;
+          data.posy += data.vely;
+          data.posz += data.velz;
+
+          data.posx2 += data.posx;
+          data.posy2 += data.posy;
+          data.posz2 += data.posz;
+
+          if (socket) {
+            socket.emit("update", data);
+          }
         }
                 
+        var filt0 = 0.04;
+        var filt1 = 1-filt0;
         window.ondeviceorientation = function(event) {
-          alpha = Math.round(event.alpha);
-          beta = Math.round(event.beta);
-          gamma = Math.round(event.gamma);
+          data.alpha = data.alpha*filt1 + filt0*Math.round(event.alpha);
+          data.beta  = data.beta*filt1 + filt0*Math.round(event.beta);
+          data.gamma = data.gamma*filt1 + filt0*Math.round(event.gamma);
+
+          if (socket) {
+            socket.emit("update", data);
+          }
         }       
         
 
         setInterval(function() {
-          document.getElementById("xlabel").innerHTML = "X: " + ax;
-          document.getElementById("ylabel").innerHTML = "Y: " + ay;
-          document.getElementById("zlabel").innerHTML = "Z: " + az;                   
-          document.getElementById("ilabel").innerHTML = "I: " + ai;                   
-          document.getElementById("arAlphaLabel").innerHTML = "arA: " + arAlpha;                              
-          document.getElementById("arBetaLabel").innerHTML = "arB: " + arBeta;
-          document.getElementById("arGammaLabel").innerHTML = "arG: " + arGamma;                                                  
-          document.getElementById("alphalabel").innerHTML = "Alpha: " + alpha;
-          document.getElementById("betalabel").innerHTML = "Beta: " + beta;
-          document.getElementById("gammalabel").innerHTML = "Gamma: " + gamma;
+          document.getElementById("xlabel").innerHTML = "X: " + data.ax;
+          document.getElementById("ylabel").innerHTML = "Y: " + data.ay;
+          document.getElementById("zlabel").innerHTML = "Z: " + data.az;
+          document.getElementById("ilabel").innerHTML = "I: " + data.ai;
+          document.getElementById("arAlphaLabel").innerHTML = "arA: " + data.arAlpha;                              
+          document.getElementById("arBetaLabel").innerHTML = "arB: " + data.arBeta;
+          document.getElementById("arGammaLabel").innerHTML = "arG: " + data.arGamma;                                                  
+          document.getElementById("alphalabel").innerHTML = "Alpha: " + data.alpha;
+          document.getElementById("betalabel").innerHTML = "Beta: " + data.beta;
+          document.getElementById("gammalabel").innerHTML = "Gamma: " + data.gamma;
 
         }, delay);
       } 
 
       window.onload = function(){
-
-        var socket = io(window.location.origin); 
+        socket = io(window.location.origin); 
         socket.emit("register_live", {});
+
+        console.log(socket);
       }
       </script> 
     </body> 
