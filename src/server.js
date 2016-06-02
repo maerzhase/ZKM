@@ -1,10 +1,15 @@
+var algocomp = require('./algocomposer.js');
+
 // restify + socket.io
 var restify = require('restify'),
     socketio = require('socket.io'),
     server = restify.createServer(),
-    io = socketio.listen(server.server);
-
+    io = socketio.listen(server.server),
+	midi = require('midi');
 var uuid = require('node-uuid');
+
+var midiIn = new midi.input();
+var midiOut = new midi.output();
 
 
 // for retrieving full responses
@@ -15,7 +20,6 @@ server.use(restify.CORS({
     credentials: true,                 // defaults to false
     headers: ['Authorization']         // sets expose-headers
 }));
-
 
 // RESTify routes
 server.get('/live', restify.serveStatic({
@@ -34,8 +38,6 @@ server.get('/render.js', restify.serveStatic({
 }));
 
 var phoneData = {};
-
-//server.post('/startmatch',restify.bodyParser(), restify.queryParser(), startMatch);
 
 
 io.on('connection', function (socket) {
@@ -63,6 +65,19 @@ io.on('connection', function (socket) {
     io.emit('stats', phoneData);
   });
 });
+
+
+midiOut.openPort(0);
+var frameCnt = 0;
+
+function update() {
+	algocomp.play(frameCnt);
+	frameCnt += 1;
+}
+
+algocomp.init(midiOut);
+setInterval(update,50);
+
 
 function registerUser(req,res,next){
   var playerData = JSON.parse(req.body.data);
